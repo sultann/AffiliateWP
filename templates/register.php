@@ -42,6 +42,8 @@
 
 		<?php endif; ?>
 
+		<?php do_action( 'affwp_register_form' ); ?>
+
 		<p>
 			<label class="affwp-tos" for="affwp-tos">
 				<input id="affwp-tos" class="required" type="checkbox" name="affwp_tos" />

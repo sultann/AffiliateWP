@@ -28,6 +28,14 @@ class Affiliate_WP_Register {
 
 		do_action( 'affwp_pre_process_register_form' );
 
+		$validation_error = apply_filters( 'affwp_process_registration_errors', $validation_error, $data['affwp_user_login'], $_POST['affwp_user_pass'], $data['affwp_user_email'] );
+
+		if ( ! empty( $validation_error ) ) {
+			foreach ($validation_error as $error => $message) {
+				$this->add_error( $error, $message );
+			}
+		}
+
 		if( ! is_user_logged_in() ) {
 
 			if( empty( $data['affwp_user_login'] ) ) {
@@ -175,7 +183,7 @@ class Affiliate_WP_Register {
 			return;
 		}
 
-		echo '<div class="affwp-errors">';
+		echo '<div class="affwp-registration-errors">';
 
 		foreach( $this->errors as $error_id => $error ) {
 

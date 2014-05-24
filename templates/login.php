@@ -24,6 +24,8 @@
 			</label>
 		</p>
 
+		<?php do_action( 'affwp_login_form' ); ?>
+
 		<p>
 			<input type="hidden" name="affwp_login_nonce" value="<?php echo wp_create_nonce( 'affwp-login-nonce' ); ?>" />
 			<input type="hidden" name="affwp_action" value="user_login" />

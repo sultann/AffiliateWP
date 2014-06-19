@@ -28,6 +28,18 @@ class Affiliate_WP_Login {
 
 		do_action( 'affwp_pre_process_login_form' );
 
+		if ( ! empty( $_POST['affwp_user_login'] ) && ! empty( $_POST['affwp_user_pass'] ) ) {
+			$validation_error = array();
+
+			$validation_error = apply_filters( 'affwp_process_login_errors', $validation_error, $_POST['affwp_user_login'], $_POST['affwp_user_pass'] );
+
+			if ( ! empty( $validation_error ) ) {
+				foreach ( $validation_error as $error => $message ) {
+					$this->add_error( $error, $message );
+				}
+			}
+		}
+
 		if( empty( $data['affwp_user_login'] ) ) {
 			$this->add_error( 'empty_username', __( 'Invalid username', 'affiliate-wp' ) );
 		}
@@ -54,16 +66,6 @@ class Affiliate_WP_Login {
 
 			$this->add_error( 'limit_login_failed', limit_login_error_msg() );
 
-		}
-
-		$validation_error = array();
-
-		$validation_error = apply_filters( 'affwp_process_login_errors', $validation_error, $_POST['affwp_user_login'], $_POST['affwp_user_pass'] );
-
-		if ( ! empty( $validation_error ) ) {
-			foreach ( $validation_error as $error => $message ) {
-				$this->add_error( $error, $message );
-			}
 		}
 
 		do_action( 'affwp_process_login_form' );

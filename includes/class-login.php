@@ -47,7 +47,7 @@ class Affiliate_WP_Login {
 		$user = get_user_by( 'login', $_POST['affwp_user_login'] );
 
 		if( ! $user ) {
-			$this->add_error( 'no_such_user', __( 'Invalid username', 'affiliate-wp' ) );
+			$this->add_error( 'no_such_user', __( 'No such user', 'affiliate-wp' ) );
 		}
 
 		if( empty( $_POST['affwp_user_pass'] ) ) {
@@ -134,6 +134,15 @@ class Affiliate_WP_Login {
 
 		echo '</div>';
 
+	}
+
+	/**
+	 * Retrieves the login URL
+	 *
+	 * @since 1.1
+	 */
+	function get_login_url() {
+	    return apply_filters( 'affwp_login_url', get_permalink( affiliate_wp()->settings->get( 'affiliates_page' ) ) );
 	}
 
 }

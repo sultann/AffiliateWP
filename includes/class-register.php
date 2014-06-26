@@ -12,6 +12,7 @@ class Affiliate_WP_Register {
 	public function __construct() {
 
 		add_action( 'affwp_affiliate_register', array( $this, 'process_registration' ) );
+		add_action( 'user_register', array( $this, 'auto_register_user_as_affiliate' ) );
 
 	}
 
@@ -81,7 +82,8 @@ class Affiliate_WP_Register {
 
 		}
 
-		if( empty( $_POST['affwp_tos'] ) ) {
+		$terms_of_use =  affiliate_wp()->settings->get( 'terms_of_use' );
+		if( ! empty( $terms_of_use ) && empty( $_POST['affwp_tos'] ) ) {
 			$this->add_error( 'empty_tos', __( 'Please agree to our terms of use', 'affiliate-wp' ) );
 		}
 
@@ -110,7 +112,7 @@ class Affiliate_WP_Register {
 	 */
 	private function register_user() {
 
-		$status  = affiliate_wp()->settings->get( 'require_approval' ) ? 'pending' : 'active';
+		$status = affiliate_wp()->settings->get( 'require_approval' ) ? 'pending' : 'active';
 
 		if( ! is_user_logged_in() ) {
 
@@ -134,6 +136,8 @@ class Affiliate_WP_Register {
 		} else {
 
 			$user_id = get_current_user_id();
+			$user    = (array) get_userdata( $user_id );
+			$args    = (array) $user['data'];
 
 		}
 
@@ -143,11 +147,7 @@ class Affiliate_WP_Register {
 			'payment_email' => ! empty( $_POST['affwp_payment_email'] ) ? sanitize_text_field( $_POST['affwp_payment_email'] ) : ''
 		) );
 
-		if( affiliate_wp()->settings->get( 'registration_notifications' ) ) {
-			affiliate_wp()->emails->notification( 'registration', array( 'affiliate_id' => $affiliate_id ) );
-		}
-
-		do_action( 'affwp_register_user', $affiliate_id, $status );
+		do_action( 'affwp_register_user', $affiliate_id, $status, $args );
 	}
 
 	/**
@@ -164,6 +164,26 @@ class Affiliate_WP_Register {
 		wp_set_auth_cookie( $user_id, $remember );
 		wp_set_current_user( $user_id, $user_login );
 		do_action( 'wp_login', $user_login, $user );
+
+	}
+
+	/**
+	 * Register a user as an affiliate during user registration
+	 *
+	 * @since 1.1
+	 * @return bool
+	 */
+	public function auto_register_user_as_affiliate( $user_id = 0 ) {
+
+		if( ! affiliate_wp()->settings->get( 'auto_register' ) ) {
+			return;
+		}
+
+		if( did_action( 'process_registration' ) ) {
+			return;
+		}
+
+		affwp_add_affiliate( array( 'user_id' => $user_id ) );
 
 	}
 
